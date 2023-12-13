@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from secret_santa import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.show_start)
 ]
