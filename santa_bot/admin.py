@@ -8,9 +8,8 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = [
         'username',
     ]
-    
+
     list_display = [
-        'id',
         'telegram_id',
         'username',
         'email',
@@ -22,11 +21,17 @@ class ManageInline(admin.TabularInline):
     extra = 0
 
 
+class UserAvoidanceInline(admin.TabularInline):
+    model = UserAvoidance
+    extra = 0
+
+
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
     search_fields = [
         'name',
     ]
+
     list_filter = [
         'name',
         'start_date',
@@ -45,14 +50,16 @@ class GameAdmin(admin.ModelAdmin):
     raw_id_fields = [
         'user',
     ]
+
     inlines = [
-        ManageInline
+        ManageInline,
+        UserAvoidanceInline,
     ]
 
 
 @admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):
-    
+
     list_display = [
         'user',
         'game',
@@ -78,4 +85,17 @@ class UserAvoidanceAdmin(admin.ModelAdmin):
         'game',
         'user',
         'avoided_user',
+    ]
+
+@admin.register(Manage)
+class ManageAdmin(admin.ModelAdmin):
+    list_display = [
+        'game',
+        'user',
+        'is_manage',
+
+    ]
+    raw_id_fields = [
+        'game',
+        'user',
     ]
