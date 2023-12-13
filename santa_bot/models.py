@@ -199,18 +199,18 @@ class UserAvoidance(models.Model):
         # null=True,
         # blank=True,
         verbose_name='Розыгрыш',
-        related_name='game'
+        related_name='avoided_user'
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name='Пользователь 1',
         related_name='avoiding_user'
     )
     avoided_user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
+        verbose_name='Пользователь 2',
         related_name='avoided_user'
     )
 
@@ -218,5 +218,35 @@ class UserAvoidance(models.Model):
         return f"{self.user.username} avoids {self.avoided_user.username}"
 
     class Meta:
-        verbose_name = 'Нежелательный пользователь'
-        verbose_name_plural = 'Нежелательные пользователи'
+        verbose_name = 'НЕ дружат'
+        verbose_name_plural = 'НЕ дружат'
+
+
+class ResultGame(models.Model):
+    game = models.ForeignKey(
+        Game,
+        on_delete=models.CASCADE,
+        # null=True,
+        # blank=True,
+        verbose_name='Розыгрыш',
+        related_name='resultgame'
+    )
+    giver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Даритель',
+        related_name='giver'
+    )
+    receiver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Получатель',
+        related_name='receiver'
+    )
+
+    def __str__(self):
+        return f"{self.giver.username} to {self.receiver.username}"
+
+    class Meta:
+        verbose_name = 'Результат'
+        verbose_name_plural = 'Результаты'

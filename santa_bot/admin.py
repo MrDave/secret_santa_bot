@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Game, Manage, UserAvoidance, Wishlist
+from .models import User, Game, Manage, UserAvoidance, Wishlist, ResultGame
 
 
 @admin.register(User)
@@ -18,6 +18,11 @@ class UserAdmin(admin.ModelAdmin):
 
 class ManageInline(admin.TabularInline):
     model = Manage
+    extra = 0
+
+
+class ResultGameInline(admin.TabularInline):
+    model = ResultGame
     extra = 0
 
 
@@ -53,6 +58,7 @@ class GameAdmin(admin.ModelAdmin):
 
     inlines = [
         ManageInline,
+        ResultGameInline,
         UserAvoidanceInline,
     ]
 
@@ -98,4 +104,19 @@ class ManageAdmin(admin.ModelAdmin):
     raw_id_fields = [
         'game',
         'user',
+    ]
+
+
+@admin.register(ResultGame)
+class ResultGameAdmin(admin.ModelAdmin):
+    list_display = [
+        'game',
+        'giver',
+        'receiver',
+
+    ]
+    raw_id_fields = [
+        'game',
+        'giver',
+        'receiver',
     ]
