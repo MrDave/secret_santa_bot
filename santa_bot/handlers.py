@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ConversationHandler
+from models import Game
 
 
 NAME, EMAIL, WISHLIST, CONFIRM = range(4)
