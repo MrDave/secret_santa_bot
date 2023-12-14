@@ -1,14 +1,15 @@
 import os
 
-import handlers
-from dotenv import load_dotenv
-from telegram.ext import CommandHandler, CallbackContext, Updater, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
+from django.conf import settings
+from telegram.ext import (CallbackContext, CallbackQueryHandler,
+                          CommandHandler, ConversationHandler, Filters,
+                          MessageHandler, Updater)
+
+from santa_bot.bot import handlers
 
 
 def main():
-    load_dotenv()
-    telegram_token = os.getenv('TELEGRAM_TOKEN')
-    updater = Updater(telegram_token)
+    updater = Updater(settings.TELEGRAM_TOKEN)
 
     dp = updater.dispatcher
 
@@ -35,11 +36,9 @@ def main():
     )
 
     dp.add_handler(conv_handler)
-
     updater.start_polling()
     updater.idle()
 
 
 if __name__ == '__main__':
     main()
-

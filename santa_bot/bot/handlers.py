@@ -1,7 +1,6 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, Update)
 from telegram.ext import CallbackContext, ConversationHandler
-
-
 
 INFORMATION_TEXT, INFORMATION_TEXT_2, INFORMATION_TEXT_3, BUTTON_HANDLING, ORDER_FLOWER, CHOOSE_NAME, CHOOSE_SURNAME, CHOOSE_ADDRESS, CHOOSE_DATE, CHOOSE_TIME, CONSULTING, GETTING_NUMBER, CREATE_ORDER = range(
     13)
@@ -15,6 +14,7 @@ def start(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     if update.message:
+        update.message.photo()
         update.message.reply_text(
             "Привет, я бот-повелитель Тайных Сант. Больше всего на свете я люблю друзей и подарки 🎁")
         update.message.reply_text(
