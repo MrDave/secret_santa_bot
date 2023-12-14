@@ -15,7 +15,7 @@ def main():
     dp = updater.dispatcher
 
     player_signup_conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start_player", handlers.start_player)],
+        entry_points=[CommandHandler("start", handlers.start_player, Filters.regex("\d"))],
         states={
             handlers.NAME: [MessageHandler(Filters.text & ~Filters.command, handlers.get_name)],
             handlers.EMAIL: [MessageHandler(Filters.text & ~Filters.command, handlers.get_email)],
@@ -26,6 +26,7 @@ def main():
     )
 
     dp.add_handler(player_signup_conv_handler)
+    dp.add_handler(CommandHandler("start", handlers.start))
 
     updater.start_polling()
     updater.idle()

@@ -5,8 +5,13 @@ from telegram.ext import CallbackContext, ConversationHandler
 NAME, EMAIL, WISHLIST, CONFIRM = range(4)
 
 
+def start(update: Update, context: CallbackContext):
+    update.message.reply_text("Это обычный start")
+
+
 def start_player(update: Update, context: CallbackContext):
     # TODO: fetch and use actual game details.
+    print(context.args)
     message_text = "Замечательно, ты собираешься участвовать в игре: {game_details}"
     update.message.reply_text(message_text)
     update.message.reply_text(
@@ -59,7 +64,6 @@ Email: {email}
 def confirm_participation(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
-    print()
     if query.data == "participation_correct":
         # TODO: Create db entry.
         message_text = """Превосходно, ты в игре! \
