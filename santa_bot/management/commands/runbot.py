@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from santa_bot import bot
+from santa_bot.bot import bot
 
 
 class Command(BaseCommand):
