@@ -8,6 +8,13 @@ class Organizer(models.Model):
         verbose_name='ID в телеграмме'
     )
 
+    def __str__(self):
+        return f'@{self.telegram_id}'
+
+    class Meta:
+        verbose_name = 'Организатор'
+        verbose_name_plural = 'Организаторы'
+
 
 class Game(models.Model):
     name = models.CharField(
@@ -30,7 +37,7 @@ class Game(models.Model):
         related_name='organizer'
     )
 
-    price_limit = name = models.CharField(
+    price_limit = models.CharField(
         max_length=200,
         verbose_name='Стоимость'
     )
@@ -111,7 +118,8 @@ class Player(models.Model):
 
     avoided_players = models.ManyToManyField(
         'self',
-        verbose_name='Не дружит'
+        blank=True,
+        verbose_name='Не дружат'
     )
 
     giftee = models.ForeignKey(
@@ -120,7 +128,7 @@ class Player(models.Model):
         null=True,
         blank=True,
         verbose_name='Кому дарит',
-        related_name='giftee'
+        related_name='giftee_players'
     )
 
     def __str__(self):
