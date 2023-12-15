@@ -2,7 +2,7 @@ from telegram.ext import Updater
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler
 from telegram.ext import Filters
 from environs import Env
-import handlers
+from santa_bot import handlers
 
 
 def main():
@@ -20,7 +20,9 @@ def main():
             handlers.NAME: [MessageHandler(Filters.text & ~Filters.command, handlers.get_name)],
             handlers.EMAIL: [MessageHandler(Filters.text & ~Filters.command, handlers.get_email)],
             handlers.WISHLIST: [MessageHandler(Filters.text & ~Filters.command, handlers.get_wishlist)],
-            handlers.CONFIRM: [CallbackQueryHandler(handlers.confirm_participation)]
+            handlers.CONFIRM: [CallbackQueryHandler(handlers.confirm_participation)],
+            handlers.EDITING_HANDLING: [CallbackQueryHandler(handlers.handle_participation_editing)],
+            handlers.EDIT_RESPONSE: [MessageHandler(Filters.text & ~Filters.command, handlers.get_edited_response)],
         },
         fallbacks=[],
     )

@@ -1,9 +1,9 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ConversationHandler
-from models import Game
+from santa_bot.models import Game
 
 
-NAME, EMAIL, WISHLIST, CONFIRM, EDITING_HANDLING = range(5)
+NAME, EMAIL, WISHLIST, CONFIRM, EDITING_HANDLING, CHECK_CORRECT, EDIT_RESPONSE = range(7)
 
 
 def start(update: Update, context: CallbackContext):
@@ -66,7 +66,11 @@ Email: {email}
         [InlineKeyboardButton("Нет, хочу что-то поменять", callback_data="edit_participation")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text(message_text, reply_markup=reply_markup)
+    if update.message:
+        update.message.reply_text(message_text, reply_markup=reply_markup)
+    elif update.callback_query:
+        update.callback_query.answer()
+        update.callback_query.message.reply_text(message_text, reply_markup=reply_markup)
 
     return CONFIRM
 
@@ -81,6 +85,7 @@ def confirm_participation(update: Update, context: CallbackContext):
 {game.end_date} мы проведем жеребьевку и ты узнаешь имя и контакты своего тайного друга. \
 Ему и нужно будет подарить подарок!"""
         query.message.reply_text(message_text)
+        return ConversationHandler.END
     elif query.data == "edit_participation":
         message_text = "Окей, что надо изменить?"
         keyboard = [
@@ -93,7 +98,6 @@ def confirm_participation(update: Update, context: CallbackContext):
         reply_markup = InlineKeyboardMarkup(keyboard)
         query.message.reply_text(message_text, reply_markup=reply_markup)
         return EDITING_HANDLING
-    return ConversationHandler.END
 
 
 def handle_participation_editing(update: Update, context: CallbackContext):
@@ -111,7 +115,7 @@ def handle_participation_editing(update: Update, context: CallbackContext):
         context.user_data["now_editing"] = "wishlist"
 
     query.message.reply_text(message_text)
-    return get_name(update, context)
+    return EDIT_RESPONSE
 
 
 def get_edited_response(update: Update, context: CallbackContext):
@@ -119,3 +123,4 @@ def get_edited_response(update: Update, context: CallbackContext):
     context.user_data[key_to_edit] = update.message.text
 
     return check_if_correct(update, context)
+
