@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand
-
-from santa_bot.bot.bot import main
+from santa_bot.bot import bot
 
 
 class Command(BaseCommand):
-    help = 'Runs the telegram bot'
+    help = "Start Telegram bot"
 
     def handle(self, *args, **options):
-        main()
+        bot.main()

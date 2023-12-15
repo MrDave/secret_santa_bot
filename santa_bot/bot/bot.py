@@ -1,18 +1,19 @@
-import os
-
-from django.conf import settings
-from telegram.ext import (CallbackQueryHandler, CommandHandler,
-                          ConversationHandler, Filters, MessageHandler,
-                          Updater)
-
-from santa_bot.bot import handlers
+from telegram.ext import Updater
+from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler
+from telegram.ext import Filters
+from environs import Env
+from santa_bot import handlers
 
 
 def main():
-    updater = Updater(settings.TELEGRAM_TOKEN)
+    env = Env()
+    env.read_env()
+    telegram_token = env.str("TELEGRAM_TOKEN")
+
+    updater = Updater(telegram_token)
 
     dp = updater.dispatcher
-
+    
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', handlers.start),
                       CommandHandler('restart', handlers.restart)],
@@ -50,9 +51,23 @@ def main():
         ]
     )
 
+    player_signup_conv_handler = ConversationHandler(
+        entry_points=[CommandHandler("start", handlers.start_player, Filters.regex("\d"))],
+        states={
+            handlers.NAME: [MessageHandler(Filters.text & ~Filters.command, handlers.get_name)],
+            handlers.EMAIL: [MessageHandler(Filters.text & ~Filters.command, handlers.get_email)],
+            handlers.WISHLIST: [MessageHandler(Filters.text & ~Filters.command, handlers.get_wishlist)],
+            handlers.CONFIRM: [CallbackQueryHandler(handlers.confirm_participation)],
+            handlers.EDITING_HANDLING: [CallbackQueryHandler(handlers.handle_participation_editing)],
+            handlers.EDIT_RESPONSE: [MessageHandler(Filters.text & ~Filters.command, handlers.get_edited_response)],
+        },
+        fallbacks=[],
+    )
+    
     dp.add_handler(conv_handler)
     dp.add_handler(conv_handler_create_group)
     dp.add_handler(conv_handler_my_groups)
+    dp.add_handler(player_signup_conv_handler)
 
     updater.start_polling()
     updater.idle()
