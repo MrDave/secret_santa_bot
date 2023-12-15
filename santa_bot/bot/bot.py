@@ -2,7 +2,7 @@ from telegram.ext import Updater
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler
 from telegram.ext import Filters
 from environs import Env
-from santa_bot import handlers
+from santa_bot.bot import handlers
 
 
 def main():
@@ -32,7 +32,9 @@ def main():
         fallbacks=[
             CommandHandler('restart', handlers.restart),
             MessageHandler(Filters.regex('Создание новой группы'),
-                           handlers.button_handling)
+                           handlers.button_handling),
+            MessageHandler(Filters.regex('Мои группы'), handlers.button_handling)
+
         ]
     )
 

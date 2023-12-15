@@ -5,7 +5,7 @@ from santa_bot.models import Game
 
 
 NAME, EMAIL, WISHLIST, CONFIRM, EDITING_HANDLING, CHECK_CORRECT, EDIT_RESPONSE = range(7)
-INFORMATION_TEXT, INFORMATION_TEXT_2, BUTTON_HANDLING, CREATE_GROUP, DESCRIPTION_GROUP, CHOOSE_DATE, CHOSEN_GROUP = range(7)
+INFORMATION_TEXT, INFORMATION_TEXT_2, BUTTON_HANDLING, CREATE_GROUP, DESCRIPTION_GROUP, CHOOSE_DATE, CHOSEN_GROUP, TEST = range(8)
 
 CREATE_GROUP_BTN_TXT, ADMIN_BTN_TXT, MY_GROUPS_BTN_TXT = [
     "Создание новой группы", "Управлять группами", "Мои группы"
@@ -166,6 +166,8 @@ def display_about_group(update: Update, context: CallbackContext):
         text=message_text,
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
+
+    return TEST
 
 
 def leave_group(update: Update, context: CallbackContext):
