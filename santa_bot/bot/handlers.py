@@ -166,7 +166,10 @@ def display_about_group(update: Update, context: CallbackContext):
     )
 
 
+def leave_group(update: Update, context: CallbackContext):
+    pass
+
+
 # Ветка управления группами
 def admin(update: Update, context: CallbackContext):
     pass
-
