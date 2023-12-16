@@ -66,10 +66,10 @@ def main():
         fallbacks=[],
     )
     
+    dp.add_handler(player_signup_conv_handler)
     dp.add_handler(conv_handler)
     dp.add_handler(conv_handler_create_group)
     dp.add_handler(conv_handler_my_groups)
-    dp.add_handler(player_signup_conv_handler)
 
     updater.start_polling()
     updater.idle()
