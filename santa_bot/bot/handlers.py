@@ -1,15 +1,16 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup,
+                      Update)
 from telegram.ext import CallbackContext, ConversationHandler
+
+from santa_bot.bot.texts import (ADMIN_BTN_TXT, CREATE_GROUP_BTN_TXT,
+                                 MY_GROUPS_BTN_TXT)
 from santa_bot.models import Game, Player
 
-
 NAME, EMAIL, WISHLIST, CONFIRM, EDITING_HANDLING, CHECK_CORRECT, EDIT_RESPONSE = range(7)
-INFORMATION_TEXT, INFORMATION_TEXT_2, BUTTON_HANDLING, CREATE_GROUP, DESCRIPTION_GROUP, CHOOSE_DATE, CHOSEN_GROUP, TEST = range(8)
-
-CREATE_GROUP_BTN_TXT, ADMIN_BTN_TXT, MY_GROUPS_BTN_TXT = [
-    "Создание новой группы", "Управлять группами", "Мои группы"
-]
+INFORMATION_TEXT, INFORMATION_TEXT_2 = range(2)
+CREATE_GROUP, DESCRIPTION_GROUP, CHOOSE_DATE = range(3)
+CHOSEN_GROUP, IN_GROUP_ACTION, CHANGE_WISHLIST = range(3)
 
 
 def start(update: Update, context: CallbackContext):
@@ -28,7 +29,7 @@ def start(update: Update, context: CallbackContext):
             reply_markup=reply_markup)
 
     return INFORMATION_TEXT
-    
+
 
 def restart(update, context):
     if update.message:
@@ -37,8 +38,8 @@ def restart(update, context):
         update.callback_query.message.reply_text("Бот перезапущен!")
     context.user_data.clear()
     return start(update, context)
-    
-    
+
+
 def information_text(update: Update, context: CallbackContext):
     query = update.callback_query
     query.answer()
@@ -80,17 +81,6 @@ def information_text_2(update: Update, context: CallbackContext):
             "в каких группах ты состоишь\n\n2️⃣ Управлять твоими созданными группами\n\n3️⃣ Создать свою группу "
             "/newgroup\nХорошей игры! 🥳",
             reply_markup=reply_markup)
-    return BUTTON_HANDLING
-
-
-def button_handling(update: Update, context: CallbackContext):
-    message_text = update.message.text
-    if message_text == CREATE_GROUP_BTN_TXT:
-        return create_group(update, context)
-    elif message_text == MY_GROUPS_BTN_TXT:
-        return my_groups(update, context)
-    elif message_text == ADMIN_BTN_TXT:
-        return admin(update, context)
 
 
 # Ветка создания новой группы
@@ -102,7 +92,7 @@ def create_group(update: Update, context: CallbackContext):
 
 
 def description_group(update: Update, context: CallbackContext):
-    context.user_data["goupe_name"] = update.message.text
+    context.user_data["group_name"] = update.message.text
     message_text = "Классное название!\n\n" \
                    "А теперь напиши мне короткое  описание вашей группы. Его будут видеть участники при регистрации и на странице группы."
     update.message.reply_text(message_text)
@@ -116,22 +106,21 @@ def choose_date(update: Update, context: CallbackContext):
 # Ветка отображения групп
 def my_groups(update: Update, context: CallbackContext):
     groups = ["Достаем", "группы", "из БД"]
-    group_names = "\n".join(groups)
-    message_text = f"Список групп, где ты участник:\n{group_names}\n"
+    message_text = f"Список групп, где ты участник:\n{', '.join(groups)}\n"
     keyboard = [
-        [InlineKeyboardButton(text=group, callback_data=group)
-         for group in groups]
+        [InlineKeyboardButton(text=group, callback_data=group)] for group in groups
     ]
+    print(keyboard)
     update.message.reply_text(text=message_text,
                               reply_markup=InlineKeyboardMarkup(keyboard))
     return CHOSEN_GROUP
 
 
 def display_about_group(update: Update, context: CallbackContext):
+    print('display_about_group')
     query = update.callback_query
     query.answer()
     group_name = query.data
-    # Достаем группу из бд по имени (в качестве примера тут словарь)
     group = {
         "name": group_name,
         "description": "Куча текста",
@@ -152,8 +141,9 @@ def display_about_group(update: Update, context: CallbackContext):
                                group['description'],
                                group['registration_status'],
                                group['amount_playing_users'],
-                               "\n".join(group['players']),
+                               group['players'],
                                group['present_for'])
+
     keyboard = [
         [InlineKeyboardButton(text="Назад",
                               callback_data="Назад")],
@@ -162,23 +152,29 @@ def display_about_group(update: Update, context: CallbackContext):
         [InlineKeyboardButton(text="Изменить желание",
                               callback_data="Изменить желание")]
     ]
-    update.callback_query.message.reply_text(
-        text=message_text,
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-    return TEST
+    query.message.reply_text(
+        text=message_text, reply_markup=InlineKeyboardMarkup(keyboard))
+    return IN_GROUP_ACTION
 
 
-def leave_group(update: Update, context: CallbackContext):
-    pass
+def in_group_action(update: Update, context: CallbackContext):
+    query = update.callback_query
+    if query.data == 'Назад':
+        return CHOSEN_GROUP
+    elif query.data == 'Покинуть группу':
+        print('Выйти из группу')
+        return ConversationHandler.END
+    elif query.data == 'Изменить желание':
+        query.message.reply_text('Заполните, пожалуйсьа заново вишлист')
+        return CHANGE_WISHLIST
 
 
 # Ветка управления группами
 def admin(update: Update, context: CallbackContext):
-    pass    
+    pass
 
 
+# Ветка регистрации игрока
 def start_player(update: Update, context: CallbackContext):
     """Reached through deep-link with game ID."""
     game_id = context.args[0]
@@ -305,6 +301,17 @@ def handle_participation_editing(update: Update, context: CallbackContext):
     return EDIT_RESPONSE
 
 
+def get_edited_response(update: Update, context: CallbackContext):
+    key_to_edit = context.user_data.pop("now_editing")
+    context.user_data[key_to_edit] = update.message.text
+
+    return check_if_correct(update, context)
+
+def get_edited_response(update: Update, context: CallbackContext):
+    key_to_edit = context.user_data.pop("now_editing")
+    context.user_data[key_to_edit] = update.message.text
+
+    return check_if_correct(update, context)
 def get_edited_response(update: Update, context: CallbackContext):
     key_to_edit = context.user_data.pop("now_editing")
     context.user_data[key_to_edit] = update.message.text
