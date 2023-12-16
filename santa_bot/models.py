@@ -4,7 +4,6 @@ from django.db import models
 class Organizer(models.Model):
     telegram_id = models.IntegerField(
         unique=True,
-        default=False,
         verbose_name='ID в телеграмме'
     )
 
