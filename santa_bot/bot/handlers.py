@@ -197,6 +197,7 @@ def start_player(update: Update, context: CallbackContext):
 
 
 def get_name(update: Update, context: CallbackContext):
+    """Collect player's name from text message and ask for email."""
     context.user_data["name"] = update.message.text
     message_text = "Славно! Теперь напиши свой email"
     update.message.reply_text(message_text)
@@ -205,6 +206,7 @@ def get_name(update: Update, context: CallbackContext):
 
 
 def get_email(update: Update, context: CallbackContext):
+    """Collect player's email and ask for their wishlist."""
     context.user_data["email"] = update.message.text
     game = context.user_data["current_game"]
     message_text = f"""А сейчас расскажи, что бы ты хотел в подарок :)
@@ -217,11 +219,13 @@ def get_email(update: Update, context: CallbackContext):
 
 
 def get_wishlist(update: Update, context: CallbackContext):
+    """Collect player's wishlist."""
     context.user_data["wishlist"] = update.message.text
     return check_if_correct(update, context)
 
 
 def check_if_correct(update: Update, context: CallbackContext):
+    """Show summary of the player's info to confirm or edit."""
     wishlist = context.user_data["wishlist"]
     name = context.user_data["name"]
     email = context.user_data["email"]
