@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import InputMediaPhoto, KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext, ConversationHandler
-from santa_bot.models import Game
+from santa_bot.models import Game, Player
 
 
 NAME, EMAIL, WISHLIST, CONFIRM, EDITING_HANDLING, CHECK_CORRECT, EDIT_RESPONSE = range(7)
@@ -206,8 +206,11 @@ def get_name(update: Update, context: CallbackContext):
 
 def get_email(update: Update, context: CallbackContext):
     context.user_data["email"] = update.message.text
-    message_text = """А сейчас расскажи, что бы ты хотел в подарок :)
-Это может быть что-то конкретное или же просто что тебе было бы по душе"""
+    game = context.user_data["current_game"]
+    message_text = f"""А сейчас расскажи, что бы ты хотел в подарок :)
+Это может быть что-то конкретное или же просто что тебе было бы по душе
+
+Ограничения по подаркам: {game.price_limit}"""
     update.message.reply_text(message_text)
 
     return WISHLIST
@@ -245,11 +248,22 @@ Email: {email}
 
 
 def confirm_participation(update: Update, context: CallbackContext):
+    """Create correct Player entry in db or select field to edit."""
     query = update.callback_query
     query.answer()
     if query.data == "participation_correct":
         game = context.user_data["current_game"]
-        # TODO: Create db entry.
+        wishlist = context.user_data["wishlist"]
+        name = context.user_data["name"]
+        email = context.user_data["email"]
+
+        Player.objects.create(
+            telegram_id=update.effective_user.id,
+            game=game,
+            name=name,
+            email=email,
+            wishlist=wishlist
+        )
         message_text = f"""Превосходно, ты в игре! \
 {game.end_date} мы проведем жеребьевку и ты узнаешь имя и контакты своего тайного друга. \
 Ему и нужно будет подарить подарок!"""
@@ -292,4 +306,3 @@ def get_edited_response(update: Update, context: CallbackContext):
     context.user_data[key_to_edit] = update.message.text
 
     return check_if_correct(update, context)
-    
