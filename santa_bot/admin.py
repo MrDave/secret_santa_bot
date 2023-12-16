@@ -1,40 +1,28 @@
 from django.contrib import admin
 
-from .models import User, Game, Manage, UserAvoidance, Wishlist, ResultGame
+from .models import Player, Game, Organizer
 
 
-@admin.register(User)
+@admin.register(Organizer)
 class UserAdmin(admin.ModelAdmin):
     search_fields = [
-        'username',
+        'telegram_id',
     ]
 
     list_display = [
+        'id',
         'telegram_id',
-        'username',
-        'email',
+        
     ]
-
-
-class ManageInline(admin.TabularInline):
-    model = Manage
-    extra = 0
-
-
-class ResultGameInline(admin.TabularInline):
-    model = ResultGame
-    extra = 0
-
-
-class UserAvoidanceInline(admin.TabularInline):
-    model = UserAvoidance
-    extra = 0
 
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
     search_fields = [
         'name',
+        'start_date',
+        'end_date',
+        'send_date',
     ]
 
     list_filter = [
@@ -46,77 +34,43 @@ class GameAdmin(admin.ModelAdmin):
 
     list_display = [
         'name',
-        'user',
+        'organizer',
         'start_date',
         'end_date',
         'send_date',
         'link',
+        'price_limit',
+        'players_distributed',
     ]
+
     raw_id_fields = [
-        'user',
-    ]
-
-    inlines = [
-        ManageInline,
-        ResultGameInline,
-        UserAvoidanceInline,
+        'organizer',
     ]
 
 
-@admin.register(Wishlist)
-class WishlistAdmin(admin.ModelAdmin):
-
-    list_display = [
-        'user',
+@admin.register(Player)
+class PlayerAdmin(admin.ModelAdmin):
+    search_fields = [
+        'telegram_id',
         'game',
         'name',
-        'price',
-
+        'email',
     ]
-    raw_id_fields = [
-        'user',
+
+    list_filter = [
+        'telegram_id',
         'game',
+        'name',
+        'email',
     ]
 
-
-@admin.register(UserAvoidance)
-class UserAvoidanceAdmin(admin.ModelAdmin):
     list_display = [
+        'telegram_id',
         'game',
-        'user',
-        'avoided_user',
-
+        'name',
+        'email',
     ]
     raw_id_fields = [
-        'game',
-        'user',
-        'avoided_user',
-    ]
-
-@admin.register(Manage)
-class ManageAdmin(admin.ModelAdmin):
-    list_display = [
-        'game',
-        'user',
-        'is_manage',
-
-    ]
-    raw_id_fields = [
-        'game',
-        'user',
-    ]
-
-
-@admin.register(ResultGame)
-class ResultGameAdmin(admin.ModelAdmin):
-    list_display = [
-        'game',
-        'giver',
-        'receiver',
-
-    ]
-    raw_id_fields = [
-        'game',
-        'giver',
-        'receiver',
+        'avoided_players',
+        'giftee',
     ]

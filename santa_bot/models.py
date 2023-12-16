@@ -1,66 +1,24 @@
-import uuid
-
 from django.db import models
 
 
-class TimeStampedMixin(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-
-class UUIDMixin(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    class Meta:
-        abstract = True
-
-
-class User(UUIDMixin, TimeStampedMixin):
+class Organizer(models.Model):
     telegram_id = models.IntegerField(
         unique=True,
         default=False,
-        blank=True,
         verbose_name='ID в телеграмме'
     )
 
-    username = models.CharField(
-        max_length=64,
-        null=True,
-        blank=True,
-        verbose_name='Аккаунт в телеграмме'
-    )
-
-    email = models.EmailField(
-        max_length=254,
-        null=True,
-        blank=True,
-        verbose_name='Email',
-    )
-
-    # is_admin = models.BooleanField(
-    #     default=False,
-    #     null=True,
-    #     blank=True,
-    #     verbose_name='Администратор'
-    # )
-
     def __str__(self):
-        if self.username:
-            return f'@{self.username}'
-        else:
-            return f'{self.telegram_id}'
+        return f'@{self.telegram_id}'
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = 'Организатор'
+        verbose_name_plural = 'Организаторы'
 
 
 class Game(models.Model):
     name = models.CharField(
-        max_length=100,
+        max_length=200,
         verbose_name='Название'
     )
 
@@ -70,13 +28,18 @@ class Game(models.Model):
         verbose_name='Описание'
     )
 
-    user = models.ForeignKey(
-        User,
+    organizer = models.ForeignKey(
+        Organizer,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name='Пользователь',
-        related_name='user'
+        verbose_name='Организатор',
+        related_name='organizer'
+    )
+
+    price_limit = models.CharField(
+        max_length=200,
+        verbose_name='Стоимость'
     )
 
     start_date = models.DateField(
@@ -94,7 +57,7 @@ class Game(models.Model):
     send_date = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name='Дата розыгрыша'
+        verbose_name='Дата отправки подарков'
     )
 
     link = models.CharField(
@@ -102,6 +65,10 @@ class Game(models.Model):
         null=True,
         blank=True,
         verbose_name='Ссылка на розыгрыш'
+    )
+
+    players_distributed = models.BooleanField(
+        verbose_name='Распределено?'
     )
 
     def __str__(self):
@@ -112,141 +79,53 @@ class Game(models.Model):
         verbose_name_plural = 'Розыгрыши'
 
 
-class Manage(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
-        verbose_name='Пользователь',
-        related_name='manage'
+class Player(models.Model):
+    telegram_id = models.IntegerField(
+        verbose_name='telegram ID'
     )
 
     game = models.ForeignKey(
         Game,
         on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
         verbose_name='Розыгрыш',
-        related_name='manage'
-    )
-
-    is_manage = models.BooleanField(
-        default=False,
-        null=True,
-        blank=True,
-        verbose_name='Управление'
-    )
-
-    def __str__(self):
-        return f'{self.user.username} - {self.game.name}'
-
-    class Meta:
-        verbose_name = 'Управление'
-        verbose_name_plural = 'Управления'
-
-
-class Wishlist(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
-        verbose_name='Пользователь',
-        related_name='wishlist'
-    )
-
-    game = models.ForeignKey(
-        Game,
-        on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
-        verbose_name='Розыгрыш',
-        related_name='wishlist'
+        related_name='players'
     )
 
     name = models.CharField(
-        max_length=200,
-        # null=True,
-        # blank=True,
-        verbose_name='Название'
+        max_length=50,
+        verbose_name='имя'
     )
 
-    price = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        verbose_name='Цена'
+    # TODO: validate data and change CharField to EmailField
+    email = models.CharField(
+        max_length=254,
+        verbose_name='email',
     )
 
-    description = models.TextField(
+    wishlist = models.TextField(
         null=True,
         blank=True,
-        verbose_name='Описание'
+        verbose_name='подарки'
+    )
+
+    avoided_players = models.ManyToManyField(
+        'self',
+        blank=True,
+        verbose_name='избегаемые игроки'
+    )
+
+    giftee = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name='Кому дарит',
+        related_name='santa'
     )
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.telegram_id}'
 
     class Meta:
-        verbose_name = 'Подарок'
-        verbose_name_plural = 'Подарки'
-
-
-class UserAvoidance(models.Model):
-    game = models.ForeignKey(
-        Game,
-        on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
-        verbose_name='Розыгрыш',
-        related_name='avoided_user'
-    )
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь 1',
-        related_name='avoiding_user'
-    )
-    avoided_user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь 2',
-        related_name='avoided_user'
-    )
-
-    def __str__(self):
-        return f"{self.user.username} avoids {self.avoided_user.username}"
-
-    class Meta:
-        verbose_name = 'НЕ дружат'
-        verbose_name_plural = 'НЕ дружат'
-
-
-class ResultGame(models.Model):
-    game = models.ForeignKey(
-        Game,
-        on_delete=models.CASCADE,
-        # null=True,
-        # blank=True,
-        verbose_name='Розыгрыш',
-        related_name='resultgame'
-    )
-    giver = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Даритель',
-        related_name='giver'
-    )
-    receiver = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Получатель',
-        related_name='receiver'
-    )
-
-    def __str__(self):
-        return f"{self.giver.username} to {self.receiver.username}"
-
-    class Meta:
-        verbose_name = 'Результат'
-        verbose_name_plural = 'Результаты'
+        verbose_name = 'участник'
+        verbose_name_plural = 'участники'
