@@ -57,7 +57,7 @@ class Game(models.Model):
     send_date = models.DateTimeField(
         null=True,
         blank=True,
-        verbose_name='Дата розыгрыша'
+        verbose_name='Дата отправки подарков'
     )
 
     link = models.CharField(
@@ -128,14 +128,11 @@ class Player(models.Model):
         null=True,
         blank=True,
         verbose_name='Кому дарит',
-        related_name='giftee_players'
+        related_name='santa'
     )
 
     def __str__(self):
-        if self.username:
-            return f'@{self.name}'
-        else:
-            return f'{self.telegram_id}'
+        return f'{self.telegram_id}'
 
     class Meta:
         verbose_name = 'Пользователь'
