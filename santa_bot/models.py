@@ -68,7 +68,7 @@ class Game(models.Model):
     )
 
     players_distributed = models.BooleanField(
-        verbose_name='Распределено'
+        verbose_name='Распределено?'
     )
 
     def __str__(self):
@@ -81,45 +81,37 @@ class Game(models.Model):
 
 class Player(models.Model):
     telegram_id = models.IntegerField(
-        unique=True,
-        default=False,
-        blank=True,
-        verbose_name='ID в телеграмме'
+        verbose_name='telegram ID'
     )
 
     game = models.ForeignKey(
         Game,
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
         verbose_name='Розыгрыш',
         related_name='players'
     )
 
     name = models.CharField(
-        max_length=64,
-        null=True,
-        blank=True,
-        verbose_name='Имя'
+        max_length=50,
+        verbose_name='имя'
     )
 
-    email = models.EmailField(
+    # TODO: validate data and change CharField to EmailField
+    email = models.CharField(
         max_length=254,
-        null=True,
-        blank=True,
-        verbose_name='Email',
+        verbose_name='email',
     )
 
     wishlist = models.TextField(
         null=True,
         blank=True,
-        verbose_name='Подарки'
+        verbose_name='подарки'
     )
 
     avoided_players = models.ManyToManyField(
         'self',
         blank=True,
-        verbose_name='Не дружат'
+        verbose_name='избегаемые игроки'
     )
 
     giftee = models.ForeignKey(
@@ -135,5 +127,5 @@ class Player(models.Model):
         return f'{self.telegram_id}'
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = 'участник'
+        verbose_name_plural = 'участники'
