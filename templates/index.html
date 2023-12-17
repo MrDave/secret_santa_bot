@@ -24,15 +24,14 @@
       <div class="card-page cart-page-outside"></div>
       <div class="card-page cart-page-inside">
         <span class="merry-christmas">
-          <img src="tree.jpg" alt="">
+          <img src="{% static 'tree.jpg' %}" alt="tree">
         </span>
       </div>
     </div>
     <div class="card-page cart-page-bottom">
-      <h3 class="card-page__title">Лист желаний!</h3>
+      <h3 class="card-page__title">Лист желаний! <br> Игрока: {{ giftee.name }}</h3>
       <div class="card-page__text">
-        <p>Желаем преданных друзей, верных соратников, искренних эмоций, щенячьего восторга, тепла, любви и ласки!</p>
-        <p>Здоровья, успехов, достатка, радости и взаимных симпатий. Будьте уверены, что все мечты исполнятся!</p>
+        <p>{{ giftee.wishlist }}</p>
       </div>
     </div>
   </div>

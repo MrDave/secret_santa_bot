@@ -20,5 +20,7 @@ from secret_santa import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.show_start)
+    path('<int:telegram_id>', views.show_start),
+    path('game/<int:game_id>', views.allocation),
+    path('delgame/<int:game_id>', views.del_allocation),
 ]

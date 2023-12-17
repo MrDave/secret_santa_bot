@@ -1,0 +1,39 @@
+{% load static %}
+
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Кто кому дарит</title>
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+  <meta http-equiv="X-UA-compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="format-detection" content="telephone=no">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="{% static 'normalize.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="{% static 'script.js' %}"></script>
+</head>
+
+<body>
+  
+      <h3 class="card-page__title">{{ game.name }}</h3>
+      <div class="card-page__text">
+        <p>Описание<br>{{ game.description }}</p>
+        <h4>Дата проведения розыгрыша</h4>
+        <p>Дата: {{ game.start_date }} - {{ game.end_date }}</p>
+        <h4>Дата розыгрыша</h4>
+        <p>{{ game.send_date }}</p>
+        <h4>Результат розыгрыша</h4>
+        {% for player in players %}
+        <p> Игрок: {{player.name}} дарит игроку: {{player.giftee.name}} вот такой подарок: {{player.giftee.wishlist}}</p>
+        {% endfor %}        
+      </div>
+
+
+</body>
+
+</html>
